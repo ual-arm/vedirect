@@ -39,7 +39,7 @@ def conv_mode(code):
 values = {
     'LOAD': { 'key': 'load' },
     'H19': { 'key': 'yieldTotal', 'mx': 0.01 },
-    'VPV': { 'key': 'panelVoltage', 'mx': 0.01 },
+    'VPV': { 'key': 'panelVoltage', 'mx': 0.001 },
     'ERR': { 'key': 'error', 'f': conv_error },
     'FW': { 'key': 'firmwareVersion', 'mx': 0.01 },
     'I': { 'key': 'current', 'mx': 0.01 },
