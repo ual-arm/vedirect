@@ -89,7 +89,8 @@ Sample signalk full tree
         }, 
         "yieldToday": {
           "$source": "victron_1.XX", 
-
+          "value": 0.14
+        }, 
         "yieldTotal": {
           "$source": "victron_1.XX", 
           "timestamp": "2017-02-10T03:43:31.983Z", 
