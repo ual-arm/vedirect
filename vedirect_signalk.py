@@ -42,9 +42,9 @@ values = {
     'VPV': { 'key': 'panelVoltage', 'mx': 0.001 },
     'ERR': { 'key': 'error', 'f': conv_error },
     'FW': { 'key': 'firmwareVersion', 'mx': 0.01 },
-    'I': { 'key': 'current', 'mx': 0.01 },
+    'I': { 'key': 'current', 'mx': 0.001 },
     'H21': { 'key': 'maximumPowerToday', 'f': int }, #W
-    'IL': { 'key': 'loadCurrent', 'mx': 0.01}, 
+    'IL': { 'key': 'loadCurrent', 'mx': 0.001}, 
     'PID': { 'key': 'productId' },
     'H20': { 'key': 'yieldToday', 'mx': 0.01 }, #kWh
     'H23': { 'key': 'maximumPowerYesterday', 'f': int }, #W
@@ -57,6 +57,7 @@ values = {
     }
 
 def print_data_callback(data):
+    updates = []
     for k in data.keys():
         if not values.has_key(k):
             continue
@@ -69,25 +70,26 @@ def print_data_callback(data):
         elif info.has_key('f'):
             func = info['f']
             value = func(value)
-            
-        delta = {
-            "updates": [
-                {
-                    "source": {
-                        "label": "victron_1"
-                    },
-                    "values": [
-                        {
-                            "path": key,
-                            "value": value
-                        }
-                    ]
-                }
-            ]
-        }
-        print json.dumps(delta)
+
+        updates.append({"path": key, "value": value})
+
+        if k == 'CS':
+            updates.append({'path': key_base + 'modeValue',
+                            'value': int(data[k])})
+        
+    delta = {
+        "updates": [
+            {
+                "source": {
+                    "label": "victron_1"
+                },
+                "values": updates
+            }
+        ]
+    }
+    print json.dumps(delta)
 
 if __name__ == '__main__':
-    ve = vedirect('/dev/ttyUSB3')
+    ve = vedirect('/dev/ve-direct')
     ve.read_data_callback(print_data_callback)
 
