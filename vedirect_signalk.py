@@ -2,6 +2,7 @@
 
 from vedirect import vedirect
 import json
+import sys
 
 key_base = 'electrical.chargers.victron.'
 
@@ -88,6 +89,7 @@ def print_data_callback(data):
         ]
     }
     print json.dumps(delta)
+    sys.stdout.flush()
 
 if __name__ == '__main__':
     ve = vedirect('/dev/ve-direct')
