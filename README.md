@@ -1,4 +1,7 @@
 
+This is no longer being mantained, please use https://github.com/SignalK/vedirect-serial-usb instead.
+
+
 Config for use with signalk-node-server
 
 ```
