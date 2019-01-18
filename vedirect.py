@@ -15,12 +15,20 @@ class vedirect:
         self.key = ''
         self.value = ''
         self.bytes_sum = 0;
-        self.state = self.WAIT_HEADER
+        self.state = self.WAIT_HEADER       # global state
+        self.stateTmp = self.WAIT_HEADER    # global checksum state
         self.dict = {}
 
 
     (HEX, WAIT_HEADER, IN_KEY, IN_VALUE, IN_CHECKSUM) = range(5)
-
+    
+    def getInt(self, default=0):
+        try:
+            return int(nb)
+        except Exception:
+            return default
+        return default
+            
     def input(self, byte):
         if byte == self.hexmarker and self.state != self.IN_CHECKSUM:
             self.state = self.HEX
@@ -38,26 +46,33 @@ class vedirect:
             self.bytes_sum += ord(byte)
             if byte == self.delimiter:
                 if (self.key == 'Checksum'):
-                    self.state = self.IN_CHECKSUM
+                    self.stateTmp = self.IN_CHECKSUM
+                    self.state = self.IN_VALUE
                 else:
                     self.state = self.IN_VALUE
             else:
                 self.key += byte
             return None
         elif self.state == self.IN_VALUE:
-            self.bytes_sum += ord(byte)
+            if self.stateTmp != self.IN_CHECKSUM:
+                self.bytes_sum += ord(byte)
             if byte == self.header1:
-                self.state = self.WAIT_HEADER
-                self.dict[self.key] = self.value;
-                self.key = '';
-                self.value = '';
+                if self.stateTmp != self.IN_CHECKSUM:
+                    self.state = self.WAIT_HEADER
+                    self.dict[self.key] = self.value;
+                    self.key = '';
+                    self.value = '';
+                 else:
+                    self.state = self.IN_CHECKSUM
+                    self.stateTmp = self.WAIT_HEADER
+                    self.bytes_sum += ord(byte)
             else:
                 self.value += byte
             return None
         elif self.state == self.IN_CHECKSUM:
             self.bytes_sum += ord(byte)
-            self.key = ''
-            self.value = ''
+            self.bytes_sum += self.getInt(self.value, 0)
+            
             self.state = self.WAIT_HEADER
             if (self.bytes_sum % 256 == 0):
                 self.bytes_sum = 0
@@ -65,6 +80,9 @@ class vedirect:
             else:
                 print 'Malformed packet'
                 self.bytes_sum = 0
+            self.key = ''
+            self.value = ''
+            
         elif self.state == self.HEX:
             self.bytes_sum = 0
             if byte == self.header2:
