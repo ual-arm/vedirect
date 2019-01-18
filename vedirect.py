@@ -16,7 +16,8 @@ class vedirect:
         self.value = ''
         self.bytes_sum = 0;
         self.state = self.WAIT_HEADER       # global state
-        self.stateTmp = self.WAIT_HEADER    # global checksum state
+        # global checksum state (used for stopping sum of bytes for checksum value)
+        self.stateTmp = self.WAIT_HEADER    
         self.dict = {}
 
 
@@ -46,7 +47,8 @@ class vedirect:
             self.bytes_sum += ord(byte)
             if byte == self.delimiter:
                 if (self.key == 'Checksum'):
-                    self.stateTmp = self.IN_CHECKSUM
+                    # Checksum detected (now get value and stop byte count)
+                    self.stateTmp = self.IN_CHECKSUM 
                     self.state = self.IN_VALUE
                 else:
                     self.state = self.IN_VALUE
@@ -54,8 +56,10 @@ class vedirect:
                 self.key += byte
             return None
         elif self.state == self.IN_VALUE:
+            # stopping byte count only for checksum value)
             if self.stateTmp != self.IN_CHECKSUM:
                 self.bytes_sum += ord(byte)
+                
             if byte == self.header1:
                 if self.stateTmp != self.IN_CHECKSUM:
                     self.state = self.WAIT_HEADER
@@ -65,12 +69,15 @@ class vedirect:
                  else:
                     self.state = self.IN_CHECKSUM
                     self.stateTmp = self.WAIT_HEADER
+                    # if checksum value getted add header1 byte to global sum
                     self.bytes_sum += ord(byte)
             else:
                 self.value += byte
             return None
         elif self.state == self.IN_CHECKSUM:
+            # add header2 byte to global sum
             self.bytes_sum += ord(byte)
+            # add checksum value to global sum
             self.bytes_sum += self.getInt(self.value, 0)
             
             self.state = self.WAIT_HEADER
