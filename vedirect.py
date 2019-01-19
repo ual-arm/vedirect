@@ -77,11 +77,11 @@ class vedirect:
         elif self.state == self.IN_CHECKSUM:
             # add header2 byte to global sum
             self.bytes_sum += ord(byte)
-            # add checksum value to global sum
-            self.bytes_sum += self.getInt(self.value, 0)
+            # convert value to int
+            self.value = self.getInt(self.value)
             
             self.state = self.WAIT_HEADER
-            if (self.bytes_sum % 256 == 0):
+            if ((self.bytes_sum+self.value) % 256 == 0 and self.bytes_sum % 256 == self.value):
                 self.bytes_sum = 0
                 return self.dict
             else:
