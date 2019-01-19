@@ -64,8 +64,8 @@ class vedirect:
                 if self.stateTmp != self.IN_CHECKSUM:
                     self.state = self.WAIT_HEADER
                     self.dict[self.key] = self.value;
-                    self.key = '';
-                    self.value = '';
+                    self.key = ''
+                    self.value = ''
                  else:
                     self.state = self.IN_CHECKSUM
                     self.stateTmp = self.WAIT_HEADER
