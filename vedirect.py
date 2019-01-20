@@ -23,7 +23,7 @@ class vedirect:
 
     (HEX, WAIT_HEADER, IN_KEY, IN_VALUE, IN_CHECKSUM) = range(5)
     
-    def getInt(self, default=0):
+    def getInt(self, nb, default=0):
         try:
             return int(nb)
         except Exception:
@@ -38,8 +38,10 @@ class vedirect:
         if self.state == self.WAIT_HEADER:
             self.bytes_sum += ord(byte)
             if byte == self.header1:
+                print("header1 getted \n")
                 self.state = self.WAIT_HEADER
             elif byte == self.header2:
+                print("header2 getted \n")
                 self.state = self.IN_KEY
 
             return None
@@ -50,8 +52,10 @@ class vedirect:
                     # Checksum detected (now get value and stop byte count)
                     self.stateTmp = self.IN_CHECKSUM 
                     self.state = self.IN_VALUE
+                    print("Checksum key getted \n")
                 else:
                     self.state = self.IN_VALUE
+                    print("Key getted \n")
             else:
                 self.key += byte
             return None
@@ -63,13 +67,14 @@ class vedirect:
             if byte == self.header1:
                 if self.stateTmp != self.IN_CHECKSUM:
                     self.state = self.WAIT_HEADER
-                    self.dict[self.key] = self.value;
+                    self.dict[self.key] = self.value
                     self.key = ''
                     self.value = ''
-                 else:
+                    print("value getted \n")
+                else:
                     self.state = self.IN_CHECKSUM
                     self.stateTmp = self.WAIT_HEADER
-                    
+                    print("checksum value getted \n")
             else:
                 self.value += byte
             return None
@@ -81,6 +86,7 @@ class vedirect:
             self.state = self.WAIT_HEADER
             if ((self.bytes_sum+self.value) % 256 == 0):
                 self.bytes_sum = 0
+                print("Packet validated \n")
                 return self.dict
             else:
                 print 'Malformed packet'
@@ -128,7 +134,6 @@ if __name__ == '__main__':
     parser.add_argument('--timeout', help='Serial port read timeout', type=int, default='60')
     args = parser.parse_args()
     ve = vedirect(args.port, args.timeout)
+    #ve.read_data_single()
     ve.read_data_callback(print_data_callback)
     #print(ve.read_data_single())
-    
-
