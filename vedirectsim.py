@@ -34,7 +34,11 @@ class vedirectsim:
         result.append(ord('\n'))
         result.extend([ord(i) for i in 'Checksum'])
         result.append(ord('\t'))
-        result.append(256 - (sum(result) % 256))
+        # calculate checksum and translate it
+        chk = 256 - (sum(result) % 256)
+        for c in str(chk):
+            result.append(ord(c))  
+        
         return result
                       
 
