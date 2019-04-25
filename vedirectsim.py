@@ -34,25 +34,19 @@ class vedirectsim:
         result.append(ord('\n'))
         result.extend([ord(i) for i in 'Checksum'])
         result.append(ord('\t'))
-        # calculate checksum and translate it
-        chk = 256 - (sum(result) % 256)
-        for c in str(chk):
-            result.append(ord(c))  
-        
+        result.append((256 - (sum(result) % 256)) % 256)
         return result
-                      
 
-        
+
+
     def send_packet(self):
         packet = self.convert(self.dict)
         for k in packet:
             self.ser.write(chr(k))
 
-        
+
 if __name__ == '__main__':
     ve = vedirectsim('/tmp/vmodem0')
     while True:
         ve.send_packet()
         time.sleep(1)
-        
-
